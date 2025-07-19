@@ -13,7 +13,7 @@ import { arrayMove } from "@dnd-kit/sortable";
 import { RootState } from "../../redux/store";
 import { moveTask, reorderTask } from "../../redux/tasksSlice";
 import { addStatus } from "../../redux/statusesSlice";
-import TaskCard from "../TaskCard/TaskCard";
+
 import { Task } from "../../types/task";
 import TaskForm from "../TaskForm/TaskForm";
 import StatusForm from "../StatusForm/StatusForm";
@@ -21,6 +21,7 @@ import TaskFilters from "../TaskFilters/TaskFilters";
 import ViewSwitcher from "../ViewSwitcher/ViewSwitcher";
 import "./ListView.css";
 import ListStatusColumn from "../ListStatusColumn/ListStatusColumn";
+import ListTaskCard from "../ListTaskCard/ListTaskCard";
 
 type ListViewProps = {
   view: "list" | "board";
@@ -214,14 +215,13 @@ const ListView: React.FC<ListViewProps> = ({ view, setView, searchQuery }) => {
             <DragOverlay>
               {activeTask && (
                 <div className="drag-overlay">
-                  <TaskCard task={activeTask} />
+                  <ListTaskCard task={activeTask} />
                 </div>
               )}
             </DragOverlay>
           </DndContext>
         </div>
 
-        {/* Floating Add Task Button */}
         <button
           onClick={() => setIsTaskFormOpen(true)}
           className="floating-btn floating-add-task"
@@ -229,7 +229,6 @@ const ListView: React.FC<ListViewProps> = ({ view, setView, searchQuery }) => {
           +
         </button>
 
-        {/* Floating Add Status Button */}
         <button
           onClick={() => setIsStatusModalOpen(true)}
           className="floating-btn floating-add-status"
@@ -238,7 +237,6 @@ const ListView: React.FC<ListViewProps> = ({ view, setView, searchQuery }) => {
           ≡
         </button>
 
-        {/* Task Form Modal */}
         {isTaskFormOpen && (
           <div className="modal-overlay">
             <div className="modal-content">
@@ -247,7 +245,6 @@ const ListView: React.FC<ListViewProps> = ({ view, setView, searchQuery }) => {
           </div>
         )}
 
-        {/* Status Form Modal */}
         {isStatusModalOpen && (
           <div className="modal-overlay">
             <div className="modal-content">

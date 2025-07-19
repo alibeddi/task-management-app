@@ -50,7 +50,7 @@ const BoardView: React.FC<BoardViewProps> = ({
       activationConstraint: {
         distance: 8,
       },
-    }),
+    })
   );
 
   const sortedStatuses = [...statuses].sort((a, b) => a.order - b.order);
@@ -73,7 +73,7 @@ const BoardView: React.FC<BoardViewProps> = ({
     // Apply due date filter
     if (dueDateFilter) {
       filtered = filtered.filter(
-        (task) => task.dueDate && task.dueDate <= dueDateFilter,
+        (task) => task.dueDate && task.dueDate <= dueDateFilter
       );
     }
 
@@ -88,7 +88,7 @@ const BoardView: React.FC<BoardViewProps> = ({
           task.priority.toLowerCase().includes(query) ||
           (task.assignees &&
             task.assignees.some((assignee) =>
-              assignee.name.toLowerCase().includes(query),
+              assignee.name.toLowerCase().includes(query)
             ))
         );
       });
@@ -128,7 +128,7 @@ const BoardView: React.FC<BoardViewProps> = ({
           taskId: activeId,
           newStatus: targetStatus.id,
           newOrder,
-        }),
+        })
       );
       return;
     }
@@ -158,7 +158,7 @@ const BoardView: React.FC<BoardViewProps> = ({
             taskId: activeId,
             newStatus: overTask.status,
             newOrder: overIndex,
-          }),
+          })
         );
       }
     }
@@ -172,7 +172,7 @@ const BoardView: React.FC<BoardViewProps> = ({
         name: statusName,
         isDefault: false,
         order: nextOrder,
-      }),
+      })
     );
   };
 
@@ -189,8 +189,7 @@ const BoardView: React.FC<BoardViewProps> = ({
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
-              >
+                strokeWidth="2">
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="m21 21-4.35-4.35"></path>
               </svg>
@@ -212,18 +211,15 @@ const BoardView: React.FC<BoardViewProps> = ({
         </div>
       </div>
 
-      {/* Board Columns */}
       <div className="board-content">
         <DndContext
           sensors={sensors}
           onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-        >
+          onDragEnd={handleDragEnd}>
           <div className="board-columns">
             {sortedStatuses
               .filter(
-                (status) =>
-                  statusFilter === "all" || status.id === statusFilter,
+                (status) => statusFilter === "all" || status.id === statusFilter
               )
               .map((status) => (
                 <StatusColumn
@@ -234,7 +230,6 @@ const BoardView: React.FC<BoardViewProps> = ({
                 />
               ))}
 
-            {/* Add Status Column */}
             {statusFilter === "all" && (
               <AddStatusColumn onAddStatus={handleAddStatus} />
             )}
@@ -254,7 +249,7 @@ const BoardView: React.FC<BoardViewProps> = ({
           <TaskForm onClose={() => setIsTaskFormOpen(false)} />
         </div>
       )}
-      {/* Floating Add Task Button */}
+
       <button
         onClick={() => setIsTaskFormOpen(true)}
         style={{
@@ -272,11 +267,10 @@ const BoardView: React.FC<BoardViewProps> = ({
           boxShadow: "0 4px 16px rgba(80,81,249,0.15)",
           cursor: "pointer",
         }}
-        aria-label="Add Task"
-      >
+        aria-label="Add Task">
         +
       </button>
-      {/* Floating Add Status Button */}
+
       <button
         onClick={() => setIsStatusModalOpen(true)}
         style={{
@@ -295,11 +289,10 @@ const BoardView: React.FC<BoardViewProps> = ({
           cursor: "pointer",
         }}
         aria-label="Add Status"
-        title="Add Status Column"
-      >
+        title="Add Status Column">
         ≡
       </button>
-      {/* Modal for Status Form */}
+
       {isStatusModalOpen && (
         <div className="modal-overlay" style={{ zIndex: 1300 }}>
           <div className="modal-content">
@@ -313,7 +306,7 @@ const BoardView: React.FC<BoardViewProps> = ({
                     name,
                     isDefault: false,
                     order: nextOrder,
-                  }),
+                  })
                 );
                 setIsStatusModalOpen(false);
               }}

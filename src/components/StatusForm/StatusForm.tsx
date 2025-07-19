@@ -3,15 +3,17 @@ import "./StatusForm.css";
 interface StatusFormProps {
   onClose: () => void;
   onSubmit: (name: string) => void;
+  initialName?: string;
+  submitLabel?: string;
 }
 
-const StatusForm: React.FC<StatusFormProps> = ({ onClose, onSubmit }) => {
-  const [name, setName] = useState("");
+const StatusForm: React.FC<StatusFormProps> = ({ onClose, onSubmit, initialName = "", submitLabel = "Create Status" }) => {
+  const [name, setName] = useState(initialName);
 
   return (
     <div className="task-form-container">
       <div className="task-form-header">
-        <h2>Create New Status</h2>
+        <h2>{submitLabel === "Create Status" ? "Create New Status" : "Edit Status"}</h2>
         <button type="button" onClick={onClose} className="close-btn">
           <svg
             width="24"
@@ -54,7 +56,7 @@ const StatusForm: React.FC<StatusFormProps> = ({ onClose, onSubmit }) => {
             Cancel
           </button>
           <button type="submit" className="create-btn">
-            Create Status
+            {submitLabel}
           </button>
         </div>
       </form>
