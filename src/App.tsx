@@ -6,28 +6,17 @@ import { useState } from "react";
 import { ListView } from "./components/ListView";
 
 function App() {
-  const [view, setView] = useState<"list" | "board">("list");
+  const [view, setView] = useState<"list" | "board">("board");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
   return (
-    <div
-      className="App"
-      style={{
-        minHeight: "100vh",
-        background: "#f6f8fa",
-        display: "flex",
-        flexDirection: "column",
-      }}>
-      <Header />
-      {/* <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '32px 0 24px 0' }}>
-        
-        <h2 style={{ margin: 0, fontWeight: 700, color: '#232360', fontSize: 28 }}>
-          {view === 'list' ? 'List View' : 'Board View'}
-        </h2>
-      </div> */}
-      <div style={{ flex: 1, overflowY: "auto", width: "100%" }}>
+    <div className="app-container">
+      <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <div className="main-wrapper">
         {view === "list" ? (
-          <ListView view={view} setView={setView} />
+          <ListView view={view} setView={setView} searchQuery={searchQuery} />
         ) : (
-          <BoardView view={view} setView={setView} />
+          <BoardView view={view} setView={setView} searchQuery={searchQuery} />
         )}
       </div>
     </div>

@@ -1,31 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addTask } from "../../redux/tasksSlice";
+import { addTask, updateTask } from "../../redux/tasksSlice";
 import { RootState } from "../../redux/store";
-import { Task, TaskCategory, Priority } from "../../types/task";
+import { Task, Priority } from "../../types/task";
 import "./TaskForm.css";
 
 interface TaskFormProps {
   onClose: () => void;
   initialStatus?: string;
+  editTask?: Task;
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({
   onClose,
-  initialStatus = "backlog",
+  initialStatus = "todo",
+  editTask,
 }) => {
   const dispatch = useDispatch();
   const tasks = useSelector((state: RootState) => state.tasks.tasks);
   const statuses = useSelector((state: RootState) => state.statuses.statuses);
+  const isEditing = !!editTask;
 
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     dueDate: "",
     priority: "Medium" as Priority,
-    category: "Design" as TaskCategory,
     status: initialStatus,
   });
+
+  // Initialize form with existing task data when editing
+  useEffect(() => {
+    if (editTask) {
+      setFormData({
+        title: editTask.title,
+        description: editTask.description === "--" ? "" : editTask.description,
+        dueDate: editTask.dueDate === "--" ? "" : editTask.dueDate,
+        priority: editTask.priority,
+        status: editTask.status,
+      });
+    }
+  }, [editTask]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,32 +50,47 @@ const TaskForm: React.FC<TaskFormProps> = ({
       return;
     }
 
-    const tasksInStatus = tasks.filter(
-      (task) => task.status === formData.status
-    );
-    const newOrder = tasksInStatus.length;
+    if (isEditing && editTask) {
+      // Update existing task
+      const updatedTask: Task = {
+        ...editTask,
+        title: formData.title,
+        description: formData.description || "--",
+        dueDate: formData.dueDate || "--",
+        priority: formData.priority,
+        status: formData.status,
+      };
 
-    const newTask: Task = {
-      id: Date.now().toString(),
-      title: formData.title,
-      description: formData?.description || "--",
-      dueDate: formData?.dueDate || "--",
-      priority: formData.priority,
-      status: formData.status,
-      order: newOrder,
-      category: formData.category,
-      completedSubtasks: 0,
-      totalSubtasks: 0,
-    };
+      dispatch(updateTask(updatedTask));
+    } else {
+      // Create new task
+      const tasksInStatus = tasks.filter(
+        (task) => task.status === formData.status,
+      );
+      const newOrder = tasksInStatus.length;
 
-    dispatch(addTask(newTask));
+      const newTask: Task = {
+        id: Date.now().toString(),
+        title: formData.title,
+        description: formData.description || "--",
+        dueDate: formData.dueDate || "--",
+        priority: formData.priority,
+        status: formData.status,
+        order: newOrder,
+        completedSubtasks: 0,
+        totalSubtasks: 0,
+      };
+
+      dispatch(addTask(newTask));
+    }
+
     onClose();
   };
 
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -72,14 +102,15 @@ const TaskForm: React.FC<TaskFormProps> = ({
   return (
     <div className="task-form-container">
       <div className="task-form-header">
-        <h2>Create New Task</h2>
+        <h2>{isEditing ? "Edit Task" : "Create New Task"}</h2>
         <button type="button" onClick={onClose} className="close-btn">
           <svg
             width="24"
             height="24"
             viewBox="0 0 24 24"
             fill="none"
-            xmlns="http://www.w3.org/2000/svg">
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <path
               d="M18 6L6 18M6 6L18 18"
               stroke="#94A3B8"
@@ -119,41 +150,27 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="category">Category</label>
-            <select
-              id="category"
-              name="category"
-              value={formData.category}
-              onChange={handleChange}>
-              <option value="Design">Design</option>
-              <option value="Content">Content</option>
-              <option value="Research">Research</option>
-              <option value="Planning">Planning</option>
-            </select>
-          </div>
-
-          <div className="form-group">
             <label htmlFor="priority">Priority</label>
             <select
               id="priority"
               name="priority"
               value={formData.priority}
-              onChange={handleChange}>
+              onChange={handleChange}
+            >
               <option value="Low">Low</option>
               <option value="Medium">Medium</option>
               <option value="High">High</option>
             </select>
           </div>
-        </div>
 
-        <div className="form-row">
           <div className="form-group">
             <label htmlFor="status">Status</label>
             <select
               id="status"
               name="status"
               value={formData.status}
-              onChange={handleChange}>
+              onChange={handleChange}
+            >
               {statuses.map((status) => (
                 <option key={status.id} value={status.id}>
                   {status.name}
@@ -161,17 +178,17 @@ const TaskForm: React.FC<TaskFormProps> = ({
               ))}
             </select>
           </div>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="dueDate">Due Date</label>
-            <input
-              type="date"
-              id="dueDate"
-              name="dueDate"
-              value={formData.dueDate}
-              onChange={handleChange}
-            />
-          </div>
+        <div className="form-group">
+          <label htmlFor="dueDate">Due Date</label>
+          <input
+            type="date"
+            id="dueDate"
+            name="dueDate"
+            value={formData.dueDate}
+            onChange={handleChange}
+          />
         </div>
 
         <div className="form-actions">
@@ -179,7 +196,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
             Cancel
           </button>
           <button type="submit" className="create-btn">
-            Create Task
+            {isEditing ? "Update Task" : "Create Task"}
           </button>
         </div>
       </form>

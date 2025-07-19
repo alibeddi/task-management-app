@@ -1,5 +1,4 @@
 export type Priority = "Low" | "Medium" | "High";
-export type TaskCategory = "Design" | "Content" | "Research" | "Planning";
 
 export interface TaskAssignee {
   id: string;
@@ -15,8 +14,7 @@ export interface Task {
   dueDate: string; // required
   priority: Priority; // required: 'Low' | 'Medium' | 'High'
   status: string; // status column id
-  order: number;  // for ordering within a column
-  category?: TaskCategory;
+  order: number; // for ordering within a column
   assignees?: TaskAssignee[];
   completedSubtasks?: number;
   totalSubtasks?: number;

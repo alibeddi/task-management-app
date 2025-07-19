@@ -6,10 +6,9 @@ interface StatusesState {
 }
 
 const defaultStatuses: StatusColumn[] = [
-  { id: "backlog", name: "Backlog", isDefault: true, order: 0 },
   { id: "todo", name: "To Do", isDefault: true, order: 1 },
   { id: "inprogress", name: "In Progress", isDefault: true, order: 2 },
-  { id: "review", name: "Review", isDefault: true, order: 3 },
+  { id: "done", name: "Done", isDefault: true, order: 3 },
 ];
 
 const initialState: StatusesState = {
@@ -25,7 +24,7 @@ const statusesSlice = createSlice({
     },
     renameStatus: (
       state: StatusesState,
-      action: PayloadAction<{ id: string; newName: string }>,
+      action: PayloadAction<{ id: string; newName: string }>
     ) => {
       const status = state.statuses.find((s) => s.id === action.payload.id);
       if (status) status.name = action.payload.newName;
@@ -38,7 +37,7 @@ const statusesSlice = createSlice({
     },
     reorderStatus: (
       state: StatusesState,
-      action: PayloadAction<{ id: string; newOrder: number }>,
+      action: PayloadAction<{ id: string; newOrder: number }>
     ) => {
       const status = state.statuses.find((s) => s.id === action.payload.id);
       if (status) status.order = action.payload.newOrder;

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import "./StatusForm.css";
 interface StatusFormProps {
   onClose: () => void;
   onSubmit: (name: string) => void;
@@ -30,13 +30,12 @@ const StatusForm: React.FC<StatusFormProps> = ({ onClose, onSubmit }) => {
         </button>
       </div>
       <form
-        onSubmit={e => {
+        onSubmit={(e) => {
           e.preventDefault();
           if (!name.trim()) return;
           onSubmit(name.trim());
         }}
-        className="task-form"
-      >
+        className="task-form">
         <div className="form-group">
           <label htmlFor="statusName">Status Name *</label>
           <input
@@ -44,7 +43,7 @@ const StatusForm: React.FC<StatusFormProps> = ({ onClose, onSubmit }) => {
             id="statusName"
             name="statusName"
             value={name}
-            onChange={e => setName(e.target.value)}
+            onChange={(e) => setName(e.target.value)}
             placeholder="Enter status name..."
             required
             autoFocus
@@ -63,4 +62,4 @@ const StatusForm: React.FC<StatusFormProps> = ({ onClose, onSubmit }) => {
   );
 };
 
-export default StatusForm; 
+export default StatusForm;

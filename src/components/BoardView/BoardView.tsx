@@ -17,16 +17,23 @@ import StatusColumn from "../StatusColumn/StatusColumn";
 import TaskCard from "../TaskCard/TaskCard";
 import TaskForm from "../TaskForm/TaskForm";
 import StatusForm from "../StatusForm/StatusForm";
+import AddStatusColumn from "../AddStatusColumn/AddStatusColumn";
 import { addStatus } from "../../redux/statusesSlice";
 import "./BoardView.css";
 import TaskFilters from "../TaskFilters/TaskFilters";
+import ViewSwitcher from "../ViewSwitcher/ViewSwitcher";
 
 interface BoardViewProps {
   view: "list" | "board";
   setView: (view: "list" | "board") => void;
+  searchQuery: string;
 }
 
-const BoardView: React.FC<BoardViewProps> = ({ view, setView }) => {
+const BoardView: React.FC<BoardViewProps> = ({
+  view,
+  setView,
+  searchQuery,
+}) => {
   const dispatch = useDispatch();
   const tasks = useSelector((state: RootState) => state.tasks.tasks);
   const statuses = useSelector((state: RootState) => state.statuses.statuses);
@@ -43,7 +50,7 @@ const BoardView: React.FC<BoardViewProps> = ({ view, setView }) => {
       activationConstraint: {
         distance: 8,
       },
-    })
+    }),
   );
 
   const sortedStatuses = [...statuses].sort((a, b) => a.order - b.order);
@@ -57,14 +64,36 @@ const BoardView: React.FC<BoardViewProps> = ({ view, setView }) => {
   // Filtered tasks helper
   const getFilteredTasksForStatus = (statusId: string) => {
     let filtered = getTasksForStatus(statusId);
+
+    // Apply priority filter
     if (priorityFilter !== "all") {
       filtered = filtered.filter((task) => task.priority === priorityFilter);
     }
+
+    // Apply due date filter
     if (dueDateFilter) {
       filtered = filtered.filter(
-        (task) => task.dueDate && task.dueDate <= dueDateFilter
+        (task) => task.dueDate && task.dueDate <= dueDateFilter,
       );
     }
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter((task) => {
+        return (
+          task.title.toLowerCase().includes(query) ||
+          (task.description &&
+            task.description.toLowerCase().includes(query)) ||
+          task.priority.toLowerCase().includes(query) ||
+          (task.assignees &&
+            task.assignees.some((assignee) =>
+              assignee.name.toLowerCase().includes(query),
+            ))
+        );
+      });
+    }
+
     return filtered;
   };
 
@@ -99,7 +128,7 @@ const BoardView: React.FC<BoardViewProps> = ({ view, setView }) => {
           taskId: activeId,
           newStatus: targetStatus.id,
           newOrder,
-        })
+        }),
       );
       return;
     }
@@ -129,48 +158,58 @@ const BoardView: React.FC<BoardViewProps> = ({ view, setView }) => {
             taskId: activeId,
             newStatus: overTask.status,
             newOrder: overIndex,
-          })
+          }),
         );
       }
     }
   };
 
+  const handleAddStatus = (statusName: string) => {
+    const nextOrder = statuses.length;
+    dispatch(
+      addStatus({
+        id: Date.now().toString(),
+        name: statusName,
+        isDefault: false,
+        order: nextOrder,
+      }),
+    );
+  };
+
   return (
     <main className="main-content">
-      <div
-        className="board-title-section"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 24,
-        }}>
-        <h1 className="board-title" style={{ margin: 0 }}>
-          🔥 Task
-        </h1>
-        <button
-          style={{
-            marginBottom: 16,
-            padding: "10px 20px",
-            fontWeight: 600,
-            borderRadius: 8,
-            border: "none",
-            background: "#5051F9",
-            color: "#fff",
-            cursor: "pointer",
-          }}
-          onClick={() => setView(view === "list" ? "board" : "list")}>
-          Switch to {view === "list" ? "Board" : "List"} View
-        </button>
-        <TaskFilters
-          priorityFilter={priorityFilter}
-          setPriorityFilter={setPriorityFilter}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          dueDateFilter={dueDateFilter}
-          setDueDateFilter={setDueDateFilter}
-          statuses={statuses}
-        />
+      <div className="board-title-section">
+        <div className="board-title-wrapper">
+          <h1 className="board-title">🔥 Task</h1>
+          {searchQuery && (
+            <div className="search-indicator">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+              <span>Searching for "{searchQuery}"</span>
+            </div>
+          )}
+        </div>
+        <div className="board-title-actions">
+          <TaskFilters
+            priorityFilter={priorityFilter}
+            setPriorityFilter={setPriorityFilter}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            dueDateFilter={dueDateFilter}
+            setDueDateFilter={setDueDateFilter}
+            statuses={statuses}
+          />
+          <ViewSwitcher view={view} setView={setView} />
+        </div>
       </div>
 
       {/* Board Columns */}
@@ -178,11 +217,13 @@ const BoardView: React.FC<BoardViewProps> = ({ view, setView }) => {
         <DndContext
           sensors={sensors}
           onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}>
+          onDragEnd={handleDragEnd}
+        >
           <div className="board-columns">
             {sortedStatuses
               .filter(
-                (status) => statusFilter === "all" || status.id === statusFilter
+                (status) =>
+                  statusFilter === "all" || status.id === statusFilter,
               )
               .map((status) => (
                 <StatusColumn
@@ -192,6 +233,11 @@ const BoardView: React.FC<BoardViewProps> = ({ view, setView }) => {
                   onCreateTask={() => setIsTaskFormOpen(true)}
                 />
               ))}
+
+            {/* Add Status Column */}
+            {statusFilter === "all" && (
+              <AddStatusColumn onAddStatus={handleAddStatus} />
+            )}
           </div>
 
           <DragOverlay>
@@ -205,9 +251,7 @@ const BoardView: React.FC<BoardViewProps> = ({ view, setView }) => {
       </div>
       {isTaskFormOpen && (
         <div className="modal-overlay">
-          <div className="modal-content">
-            <TaskForm onClose={() => setIsTaskFormOpen(false)} />
-          </div>
+          <TaskForm onClose={() => setIsTaskFormOpen(false)} />
         </div>
       )}
       {/* Floating Add Task Button */}
@@ -228,7 +272,8 @@ const BoardView: React.FC<BoardViewProps> = ({ view, setView }) => {
           boxShadow: "0 4px 16px rgba(80,81,249,0.15)",
           cursor: "pointer",
         }}
-        aria-label="Add Task">
+        aria-label="Add Task"
+      >
         +
       </button>
       {/* Floating Add Status Button */}
@@ -250,15 +295,14 @@ const BoardView: React.FC<BoardViewProps> = ({ view, setView }) => {
           cursor: "pointer",
         }}
         aria-label="Add Status"
-        title="Add Status Column">
+        title="Add Status Column"
+      >
         ≡
       </button>
       {/* Modal for Status Form */}
       {isStatusModalOpen && (
         <div className="modal-overlay" style={{ zIndex: 1300 }}>
-          <div
-            className="modal-content"
-            style={{ padding: 0, minWidth: 350, maxWidth: "90vw" }}>
+          <div className="modal-content">
             <StatusForm
               onClose={() => setIsStatusModalOpen(false)}
               onSubmit={(name) => {
@@ -269,7 +313,7 @@ const BoardView: React.FC<BoardViewProps> = ({ view, setView }) => {
                     name,
                     isDefault: false,
                     order: nextOrder,
-                  })
+                  }),
                 );
                 setIsStatusModalOpen(false);
               }}
