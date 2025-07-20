@@ -41,3 +41,29 @@
   color: #228be6;
 }
 
+@media (max-width: 768px) {
+  .task-list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8px 4px;
+    gap: 4px;
+    overflow-x: auto;
+    width: 100%;
+  }
+  .header-cell {
+    font-size: 12px;
+    padding: 4px 0;
+    gap: 2px;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .header-cell.title-desc,
+  .header-cell.due-date,
+  .header-cell.priority,
+  .header-cell.actions {
+    flex: unset;
+    width: 100%;
+    text-align: left;
+  }
+}
+
