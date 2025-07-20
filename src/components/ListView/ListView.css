@@ -463,3 +463,34 @@
 .list-task-item.loading {
   opacity: 0.5;
 }
+
+.list-header-row {
+  display: flex;
+  padding: 8px 24px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  gap: 16px;
+}
+
+.list-header-cell {
+  flex: 1;
+  color: #495057;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.list-header-cell:hover {
+  color: #228be6;
+}
+
+.list-header-cell:not(:last-child) {
+  border-right: 1px solid #e9ecef;
+}

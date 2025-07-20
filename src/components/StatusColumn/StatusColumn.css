@@ -1,4 +1,3 @@
-/* StatusColumn CSS */
 .status-column {
   /* background: #fff; */
   min-width: 260px;
@@ -125,14 +124,21 @@
   text-align: center;
 }
 
-/* Drag and drop styles */
+.task-placeholder {
+  height: 4px;
+  background-color: #5051f9;
+  border-radius: 2px;
+  margin: 8px 0;
+  transition: all 0.2s ease;
+}
+
 .tasks-container.drag-over {
   background: rgba(80, 81, 249, 0.05);
   border: 2px dashed #5051f9;
   border-radius: 8px;
+  padding: 8px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .status-column {
     min-height: 400px;

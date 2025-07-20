@@ -1,0 +1,43 @@
+.task-list-header {
+  display: flex;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.header-cell {
+  color: #495057;
+  font-weight: 500;
+  font-size: 14px;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-cell.title-desc {
+  flex: 3;
+  cursor: pointer;
+}
+
+.header-cell.due-date {
+  flex: 1;
+  cursor: pointer;
+}
+
+.header-cell.priority {
+  flex: 1;
+  cursor: pointer;
+}
+
+.header-cell.actions {
+  flex: 0.5;
+  text-align: right;
+}
+
+.header-cell:not(.actions):hover {
+  color: #228be6;
+}
+

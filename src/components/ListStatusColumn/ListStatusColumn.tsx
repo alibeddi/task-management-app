@@ -12,17 +12,25 @@ import ListTaskCard from "../ListTaskCard/ListTaskCard";
 import { useDispatch } from "react-redux";
 import { renameStatus, deleteStatus } from "../../redux/statusesSlice";
 import StatusForm from "../StatusForm/StatusForm";
+import { SortField } from "../TaskListHeader/TaskListHeader";
+import TaskListHeader from "../TaskListHeader/TaskListHeader";
 
 interface StatusColumnProps {
   status: StatusColumn;
   tasks: Task[];
   onCreateTask: () => void;
+  sortField: SortField;
+  sortDirection: "asc" | "desc";
+  onSort: (field: SortField) => void;
 }
 
 const ListStatusColumn: React.FC<StatusColumnProps> = ({
   status,
   tasks,
   onCreateTask,
+  sortField,
+  sortDirection,
+  onSort,
 }) => {
   const { setNodeRef, isOver } = useDroppable({ id: status.id });
   const dispatch = useDispatch();
@@ -108,6 +116,11 @@ const ListStatusColumn: React.FC<StatusColumnProps> = ({
         </div>
       </div>
 
+      <TaskListHeader
+        sortField={sortField}
+        sortDirection={sortDirection}
+        onSort={onSort}
+      />
       <div ref={setNodeRef} className="list-tasks-container">
         <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
           {tasks.map((task) => (

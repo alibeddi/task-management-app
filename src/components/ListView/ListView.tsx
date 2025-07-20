@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   DndContext,
   DragEndEvent,
+  DragOverEvent,
   DragOverlay,
   DragStartEvent,
   PointerSensor,
@@ -22,6 +23,7 @@ import ViewSwitcher from "../ViewSwitcher/ViewSwitcher";
 import "./ListView.css";
 import ListStatusColumn from "../ListStatusColumn/ListStatusColumn";
 import ListTaskCard from "../ListTaskCard/ListTaskCard";
+import { SortField } from "../TaskListHeader/TaskListHeader";
 
 type ListViewProps = {
   view: "list" | "board";
@@ -40,6 +42,8 @@ const ListView: React.FC<ListViewProps> = ({ view, setView, searchQuery }) => {
   const [priorityFilter, setPriorityFilter] = React.useState<string>("all");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
   const [dueDateFilter, setDueDateFilter] = React.useState<string>("");
+  const [sortField, setSortField] = useState<SortField>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -51,10 +55,36 @@ const ListView: React.FC<ListViewProps> = ({ view, setView, searchQuery }) => {
 
   const sortedStatuses = [...statuses].sort((a, b) => a.order - b.order);
 
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
   const getTasksForStatus = (statusId: string) => {
-    return tasks
+    let statusTasks = tasks
       .filter((task) => task.status === statusId)
       .sort((a, b) => a.order - b.order);
+
+    if (sortField) {
+      statusTasks = statusTasks.sort((a, b) => {
+        if (sortField === "dueDate") {
+          const dateA = new Date(a.dueDate || 0).getTime();
+          const dateB = new Date(b.dueDate || 0).getTime();
+          return sortDirection === "asc" ? dateA - dateB : dateB - dateA;
+        }
+        const valueA = a[sortField] || "";
+        const valueB = b[sortField] || "";
+        return sortDirection === "asc"
+          ? valueA.localeCompare(valueB)
+          : valueB.localeCompare(valueA);
+      });
+    }
+
+    return statusTasks;
   };
 
   // Filtered tasks helper
@@ -101,20 +131,53 @@ const ListView: React.FC<ListViewProps> = ({ view, setView, searchQuery }) => {
     }
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const [placeholderIndex, setPlaceholderIndex] = useState<number | null>(null);
+  const [placeholderStatus, setPlaceholderStatus] = useState<string | null>(
+    null
+  );
+
+  const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
-    setActiveTask(null);
     if (!over) return;
 
     const activeId = active.id as string;
     const overId = over.id as string;
+
     const activeTask = tasks.find((t) => t.id === activeId);
     if (!activeTask) return;
 
+    const overTask = tasks.find((t) => t.id === overId);
+    const overStatus = statuses.find((s) => s.id === overId);
+
+    if (overTask) {
+      const tasksInColumn = getTasksForStatus(overTask.status);
+      const overIndex = tasksInColumn.findIndex((t) => t.id === overId);
+      setPlaceholderIndex(overIndex);
+      setPlaceholderStatus(overTask.status);
+    } else if (overStatus) {
+      const tasksInColumn = getTasksForStatus(overStatus.id);
+      setPlaceholderIndex(tasksInColumn.length);
+      setPlaceholderStatus(overStatus.id);
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveTask(null);
+    setPlaceholderIndex(null);
+    setPlaceholderStatus(null);
+    
+    if (!over) return;
+  
+    const activeId = active.id as string;
+    const overId = over.id as string;
+    const activeTask = tasks.find((t) => t.id === activeId);
+    if (!activeTask) return;
+  
     // Dropping over a status column
     const targetStatus = statuses.find((s) => s.id === overId);
     if (targetStatus) {
-      const tasksInTargetStatus = getTasksForStatus(targetStatus.id);
+      const tasksInTargetStatus = getFilteredTasksForStatus(targetStatus.id);
       const newOrder = tasksInTargetStatus.length;
       dispatch(
         moveTask({
@@ -125,25 +188,29 @@ const ListView: React.FC<ListViewProps> = ({ view, setView, searchQuery }) => {
       );
       return;
     }
-
+  
     // Dropping over another task
     const overTask = tasks.find((t) => t.id === overId);
     if (overTask) {
       if (activeTask.status === overTask.status) {
         // Reordering within the same column
-        const tasksInColumn = getTasksForStatus(activeTask.status);
+        const tasksInColumn = getFilteredTasksForStatus(activeTask.status);
         const activeIndex = tasksInColumn.findIndex((t) => t.id === activeId);
         const overIndex = tasksInColumn.findIndex((t) => t.id === overId);
+        
         if (activeIndex !== overIndex) {
+          // Calculate new order based on surrounding tasks
           const newTasks = arrayMove(tasksInColumn, activeIndex, overIndex);
           newTasks.forEach((task, index) => {
-            dispatch(reorderTask({ taskId: task.id, newOrder: index }));
+            if (task.order !== index) {
+              dispatch(reorderTask({ taskId: task.id, newOrder: index }));
+            }
           });
         }
       } else {
-        // Moving to a different column
-        const tasksInTargetColumn = getTasksForStatus(overTask.status);
-        const overIndex = tasksInTargetColumn.findIndex((t) => t.id === overId);
+        // Moving to a different status
+        const tasksInTargetStatus = getFilteredTasksForStatus(overTask.status);
+        const overIndex = tasksInTargetStatus.findIndex((t) => t.id === overId);
         dispatch(
           moveTask({
             taskId: activeId,
@@ -194,6 +261,7 @@ const ListView: React.FC<ListViewProps> = ({ view, setView, searchQuery }) => {
           <DndContext
             sensors={sensors}
             onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}>
             {sortedStatuses
               .filter(
@@ -208,6 +276,9 @@ const ListView: React.FC<ListViewProps> = ({ view, setView, searchQuery }) => {
                     status={status}
                     tasks={tasksForStatus}
                     onCreateTask={() => setIsTaskFormOpen(true)}
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
                   />
                 );
               })}

@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   DndContext,
   DragEndEvent,
+  DragOverEvent,
   DragOverlay,
   DragStartEvent,
   PointerSensor,
@@ -105,6 +106,36 @@ const BoardView: React.FC<BoardViewProps> = ({
     }
   };
 
+  const [placeholderIndex, setPlaceholderIndex] = useState<number | null>(null);
+  const [placeholderStatus, setPlaceholderStatus] = useState<string | null>(
+    null
+  );
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    const activeTask = tasks.find((t) => t.id === activeId);
+    if (!activeTask) return;
+
+    const overTask = tasks.find((t) => t.id === overId);
+    const overStatus = statuses.find((s) => s.id === overId);
+
+    if (overTask) {
+      const tasksInColumn = getTasksForStatus(overTask.status);
+      const overIndex = tasksInColumn.findIndex((t) => t.id === overId);
+      setPlaceholderIndex(overIndex);
+      setPlaceholderStatus(overTask.status);
+    } else if (overStatus) {
+      const tasksInColumn = getTasksForStatus(overStatus.id);
+      setPlaceholderIndex(tasksInColumn.length);
+      setPlaceholderStatus(overStatus.id);
+    }
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveTask(null);
@@ -180,7 +211,6 @@ const BoardView: React.FC<BoardViewProps> = ({
     <main className="main-content">
       <div className="board-title-section">
         <div className="board-title-wrapper">
-          <h1 className="board-title">🔥 Task</h1>
           {searchQuery && (
             <div className="search-indicator">
               <svg
@@ -215,6 +245,7 @@ const BoardView: React.FC<BoardViewProps> = ({
         <DndContext
           sensors={sensors}
           onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}>
           <div className="board-columns">
             {sortedStatuses
