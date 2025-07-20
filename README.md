@@ -52,7 +52,7 @@ A simple and modern task management app built with React and Redux.
 
 ## 🌐 Live Demo
 
-- [Live Demo Link](https://taskmanagement-app-livid-delta.vercel.app/)
+- [Live Demo Link](https://task-management-app-livid-delta.vercel.app/)
 
 ---
 
