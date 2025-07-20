@@ -160,19 +160,19 @@ const ListTaskCard: React.FC<ListTaskCardProps> = ({ task }) => {
       <div>
         {isEditModalOpen && (
           <div className="modal-overlay">
-            <div className="modal-content">
+          
               <TaskForm
                 editTask={task}
                 onClose={() => setIsEditModalOpen(false)}
               />
             </div>
-          </div>
+         
         )}
       </div>
 
       {showDeleteConfirm && (
         <div className="modal-overlay">
-          <div className="modal-content">
+         
             <div className="delete-confirm">
               <h3>Delete Task</h3>
               <p>
@@ -189,7 +189,7 @@ const ListTaskCard: React.FC<ListTaskCardProps> = ({ task }) => {
               </div>
             </div>
           </div>
-        </div>
+      
       )}
     </>
   );

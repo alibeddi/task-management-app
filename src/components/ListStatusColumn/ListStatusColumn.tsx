@@ -141,7 +141,7 @@ const ListStatusColumn: React.FC<StatusColumnProps> = ({
 
       {isEditModalOpen && (
         <div className="modal-overlay">
-          <div className="modal-content">
+       
             <StatusForm
               onClose={() => setIsEditModalOpen(false)}
               onSubmit={(name) => {
@@ -156,12 +156,12 @@ const ListStatusColumn: React.FC<StatusColumnProps> = ({
               submitLabel="Save"
             />
           </div>
-        </div>
+        
       )}
 
       {showDeleteConfirm && (
         <div className="modal-overlay">
-          <div className="modal-content">
+          
             <div className="delete-confirm">
               <h3>Delete Status</h3>
               <p>
@@ -180,7 +180,7 @@ const ListStatusColumn: React.FC<StatusColumnProps> = ({
               </div>
             </div>
           </div>
-        </div>
+   
       )}
     </section>
   );

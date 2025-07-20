@@ -310,15 +310,15 @@ const ListView: React.FC<ListViewProps> = ({ view, setView, searchQuery }) => {
 
         {isTaskFormOpen && (
           <div className="modal-overlay">
-            <div className="modal-content">
+        
               <TaskForm onClose={() => setIsTaskFormOpen(false)} />
-            </div>
+            
           </div>
         )}
 
         {isStatusModalOpen && (
           <div className="modal-overlay">
-            <div className="modal-content">
+           
               <StatusForm
                 onClose={() => setIsStatusModalOpen(false)}
                 onSubmit={(name) => {
@@ -335,7 +335,7 @@ const ListView: React.FC<ListViewProps> = ({ view, setView, searchQuery }) => {
                   setIsStatusModalOpen(false);
                 }}
               />
-            </div>
+            
           </div>
         )}
       </main>

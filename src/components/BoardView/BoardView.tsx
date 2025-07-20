@@ -326,7 +326,7 @@ const BoardView: React.FC<BoardViewProps> = ({
 
       {isStatusModalOpen && (
         <div className="modal-overlay" style={{ zIndex: 1300 }}>
-          <div className="modal-content">
+         
             <StatusForm
               onClose={() => setIsStatusModalOpen(false)}
               onSubmit={(name) => {
@@ -342,7 +342,7 @@ const BoardView: React.FC<BoardViewProps> = ({
                 setIsStatusModalOpen(false);
               }}
             />
-          </div>
+      
         </div>
       )}
     </main>
