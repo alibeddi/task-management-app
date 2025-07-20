@@ -7,12 +7,14 @@ A simple and modern task management app built with React and Redux.
 ## 🚀 How to Run the Project Locally
 
 1. **Clone the repository**
+
    ```bash
    git clone <your-repo-url>
    cd task-management-app
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
@@ -38,6 +40,7 @@ A simple and modern task management app built with React and Redux.
 - **CSS Modules:** Each component has its own CSS for easy styling and maintenance.
 
 ### Main Features
+
 - Board view (Kanban-style columns)
 - List view (table-style tasks)
 - Add, edit, delete tasks and statuses
@@ -49,10 +52,11 @@ A simple and modern task management app built with React and Redux.
 
 ## 🌐 Live Demo
 
-- [Live Demo Link](https://your-demo-link.com) <!-- Replace with your actual link -->
+- [Live Demo Link](https://taskmanagement-app-livid-delta.vercel.app/)
 
 ---
 
 ## 📄 Notes
+
 - This project is for learning and demo purposes.
 - Feel free to fork and customize!
